@@ -1,0 +1,13 @@
+{
+  "name": "Projekt 1",
+  "sources": [
+    {
+      "input": "state-budget-expenditures",
+      "amount": 20000000000
+    },
+    {
+      "input": "eu-funds",
+      "amount": 10000000000
+    }
+  ]
+}
