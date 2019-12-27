@@ -1,12 +1,14 @@
-import { IncomeRedistribution } from './income';
 import { RedistributionDef } from 'app/schema';
 import { StateBudgetRedistribution } from './state-budget';
 import { EUBudgetRedistribution } from './eu-budget';
-import { HealthRedistribution } from './health';
+import { HealthInsuranceRedistribution } from './health-insurance';
+import { EmployeeTaxationRedistribution } from './employee-taxation';
+import { EmployerTaxationRedistribution } from './employer-taxation';
 
 export const redistributions: RedistributionDef[] = [
-  IncomeRedistribution,
+  EmployeeTaxationRedistribution,
+  EmployerTaxationRedistribution,
   StateBudgetRedistribution,
   EUBudgetRedistribution,
-  HealthRedistribution
+  HealthInsuranceRedistribution
 ];

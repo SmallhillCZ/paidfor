@@ -11,7 +11,7 @@ import { Project } from 'app/schema';
 })
 export class WageRedistributionComponent implements OnInit {
 
-  wage: number = 51200 * 12;
+  wage: number = Math.ceil(31000 * 12 * 1.34 / 100) * 100;
 
   project: Project;
 
@@ -21,11 +21,7 @@ export class WageRedistributionComponent implements OnInit {
   treeOutputs: any[];
 
   chartData: Array<[string, string, number]> = [];
-
-  chartOptions = {
-    height: 600,
-    width: 800
-  };
+  chartSelection: number[];
 
   hideOther: boolean = false;
 
@@ -43,36 +39,38 @@ export class WageRedistributionComponent implements OnInit {
   buildTree() {
 
     this.project = new Project({
-      name: "Projekt 1",
+      name: "Čapí hnízdo",
       sources: [
-        { input: "state-budget-expenditures", amount: 20000000000 },
-        { input: "eu-funds", amount: 10000000000 }
+        { input: "eu-funds", amount: 50 * Math.pow(10, 6) }
       ]
     });
 
     this.tree = new RedistributionTree(redistributions);
 
     this.treeInputs = [
-      { input: "income", money: new Money([{ amount: this.wage, id: "my-wage" }]) },
-      { input: "income-tax", money: new Money([{ amount: 1000000000000, id: "other-wages" }]) }
+      { input: "supergross-wage", money: new Money([{ amount: this.wage, id: "my-wage" }]) },
+      { input: "other-income", money: new Money([{ amount: 1103259593000, id: "other" }]) },
+      { input: "eu-support", money: new Money([{ amount: 	45281 * Math.pow(10, 6), id: "eu-help" }]) }
     ];
 
     this.treeOutputs = [...this.project.inputs(), "net-income"];
 
     this.tree.buildTree(this.treeInputs.map(input => input.input), this.treeOutputs);
 
-    this.tree.setInputs(this.treeInputs);
+    this.tree.addInputs(this.treeInputs);
 
   }
 
   updateChart() {
-    this.chartData = [];
-    const otherChartData = [];
+    const chartData: [string, string, number][] = [];
+    const otherChartData: [string, number][] = [];
+
+    const selection: number[] = [];
 
     this.tree.redistributions.forEach(({ def, instance }) => {
       Object.entries(instance.outputs).forEach(([output, money]) => {
         if (instance.children[output]) {
-          this.chartData.push([instance.title, instance.children[output].title, money.sum("my-wage")]);
+          chartData.push([instance.title, instance.children[output].title, money.sum("my-wage")]);
         }
         else if (this.treeOutputs.indexOf(output) === -1) {
           otherChartData.push([instance.title, money.sum("my-wage")]);
@@ -80,20 +78,28 @@ export class WageRedistributionComponent implements OnInit {
       });
     })
 
-    this.chartData.push(["Hrubá mzda", this.tree.inputs["income"].title, this.wage]);
-    this.chartData.push([this.tree.outputs["net-income"].title, "Čistá mzda", this.tree.getOutput("net-income").sum("my-wage")]);
+    // chartData.push(["Superhrubá mzda", this.tree.inputs["supergross-wage"].title, this.wage]);
+    chartData.push([this.tree.outputs["net-income"].title, "Čistá mzda", this.tree.getOutput("net-income").sum("my-wage")]);
+    // otherChartData.push([this.tree.outputs["health-insurance"].title, this.tree.getOutput("health-insurance").sum("my-wage")]);
 
     this.project.sources.forEach(source => {
       const projectAmount = this.tree.getOutput(source.input).sum("my-wage") / this.tree.getOutput(source.input).sum() * source.amount;
       const otherAmount = this.tree.getOutput(source.input).sum("my-wage") - projectAmount;
       otherChartData.push([this.tree.outputs[source.input].title, otherAmount]);
-      this.chartData.push([this.tree.outputs[source.input].title, this.project.name, projectAmount]);
+
+      chartData.push([this.tree.outputs[source.input].title, this.project.name, projectAmount]);
+      console.log([this.tree.outputs[source.input].title, this.project.name, projectAmount])
+      selection.push(chartData.length - 1);
     })
 
-    if(!this.hideOther) otherChartData.forEach(([sourceTitle, amount]) => this.chartData.push([sourceTitle, "Ostatní daně", amount]));
+    if (!this.hideOther) otherChartData.forEach(([sourceTitle, amount]) => chartData.push([sourceTitle, "Ostatní výdaje", amount]));
 
     this.amountPaid = Math.round(this.project.sources.reduce((acc, cur) => acc + this.tree.getOutput(cur.input).sum("my-wage") / this.tree.getOutput(cur.input).sum() * cur.amount, 0) * 100) / 100;
 
+    this.chartData = chartData;
+    this.chartSelection = selection;
+
+    console.log(chartData);
   }
 
   setHideOther(hide: boolean) {

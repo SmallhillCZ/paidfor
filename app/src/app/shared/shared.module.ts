@@ -12,7 +12,7 @@ import { ChartSankeyComponent } from './components/chart-sankey/chart-sankey.com
   imports: [
     CommonModule,
     FormsModule,
-    GoogleChartsModule.forRoot(null, "current")
+    GoogleChartsModule.forRoot()
   ],
   exports: [
     FormsModule,
