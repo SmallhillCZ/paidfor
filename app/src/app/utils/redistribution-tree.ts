@@ -78,6 +78,14 @@ export class RedistributionTree implements Output, Input {
     return this.outputs[output] ? this.outputs[output].getOutput(output) : undefined;
   }
 
+  addInput(input: string, money: Money): void {
+    if (this.inputs[input]) this.inputs[input].addInput(input, money);
+  }
+
+  addInputs(inputs: { input: string, money: Money }[]): void {
+    inputs.forEach(({ input, money }) => this.addInput(input, money));
+  }
+
   setInput(input: string, money: Money): void {
     if (this.inputs[input]) this.inputs[input].setInput(input, money);
   }
