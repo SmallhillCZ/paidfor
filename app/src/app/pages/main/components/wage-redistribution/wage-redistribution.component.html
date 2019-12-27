@@ -1,5 +1,5 @@
-<label><input type="checkbox" [ngModel]="hideOther" (ngModelChange)="setHideOther($event)">Skrýt ostatní daně</label>
+<h2>Mé peníze a Čapí hnízdo</h2>
 
-<p>Z projektu jste zaplatili {{amountPaid}} Kč.</p>
+<p>Z vašich peněz šlo na projekt {{amountPaid}} Kč.</p>
 
-<app-chart-sankey [data]="chartData" [options]="chartOptions"></app-chart-sankey>
+<app-chart-sankey [data]="chartData" [selection]="chartSelection"></app-chart-sankey>
